@@ -7,7 +7,7 @@ const TRACKS = [
     name: 'Cozy Lo-Fi',
     icon: Music,
     url: '/audio/lofi.mp3',
-    defaultVolume: 0.3
+    defaultVolume: 0.4
   },
   {
     id: 'rain',
@@ -40,41 +40,76 @@ export default function SoundMixer() {
   );
 
   const audioRefs = useRef({});
+  const audioContextRef = useRef(null);
+  const gainNodesRef = useRef({});
 
   useEffect(() => {
     // Create audio elements
     TRACKS.forEach(track => {
       const audio = new Audio(track.url);
       audio.loop = true;
-      audio.volume = volumes[track.id];
+      audio.volume = track.defaultVolume; // Initial baseline volume
       audioRefs.current[track.id] = audio;
     });
 
     return () => {
-      // Clean up audio elements on unmount
+      // Clean up audio elements and contexts on unmount
       Object.values(audioRefs.current).forEach(audio => {
         audio.pause();
         audio.src = '';
       });
+      if (audioContextRef.current && audioContextRef.current.state !== 'closed') {
+        audioContextRef.current.close();
+      }
     };
   }, []);
 
-  // Update volume when state changes
-  useEffect(() => {
-    Object.keys(volumes).forEach(id => {
-      if (audioRefs.current[id]) {
-        audioRefs.current[id].volume = volumes[id];
-      }
-    });
-  }, [volumes]);
+  // Initialize Web Audio API on user interaction (to bypass browser autoplay blocks)
+  const initAudioContext = () => {
+    if (audioContextRef.current) return;
+
+    try {
+      const AudioContextClass = window.AudioContext || window.webkitAudioContext;
+      const ctx = new AudioContextClass();
+      audioContextRef.current = ctx;
+
+      TRACKS.forEach(track => {
+        const audio = audioRefs.current[track.id];
+        if (audio) {
+          // Route HTML5 Audio -> Web Audio source -> Gain Node -> Speakers
+          const source = ctx.createMediaElementSource(audio);
+          const gainNode = ctx.createGain();
+          
+          // Set volume multiplier up to 3.0x to amplify quiet audio loops
+          gainNode.gain.value = volumes[track.id] * 3.0;
+          
+          source.connect(gainNode);
+          gainNode.connect(ctx.destination);
+          
+          gainNodesRef.current[track.id] = gainNode;
+          
+          // Set element volume to max (gain node handles actual volume control)
+          audio.volume = 1.0;
+        }
+      });
+    } catch (e) {
+      console.warn("Web Audio API not supported or failed to initialize, falling back to standard audio volume.", e);
+    }
+  };
 
   // Handle Play/Pause all
   const togglePlay = () => {
+    initAudioContext();
+    
+    // Resume context if suspended by browser
+    if (audioContextRef.current && audioContextRef.current.state === 'suspended') {
+      audioContextRef.current.resume();
+    }
+
     if (isPlaying) {
       Object.values(audioRefs.current).forEach(audio => audio.pause());
       setIsPlaying(false);
     } else {
-      // Play all that have volume > 0, others can play but remain silent
       Object.values(audioRefs.current).forEach(audio => {
         audio.play().catch(err => {
           console.warn("Audio play blocked by browser policy. Interaction required first.", err);
@@ -88,7 +123,21 @@ export default function SoundMixer() {
     const vol = parseFloat(val);
     setVolumes(prev => ({ ...prev, [id]: vol }));
     
-    // If playing, ensure that if we turn up volume from 0, it is actively playing
+    initAudioContext();
+    if (audioContextRef.current && audioContextRef.current.state === 'suspended') {
+      audioContextRef.current.resume();
+    }
+
+    // Apply volume changes
+    if (gainNodesRef.current[id]) {
+      // Scale gain node volume up to 300%
+      gainNodesRef.current[id].gain.value = vol * 3.0;
+    } else if (audioRefs.current[id]) {
+      // Fallback
+      audioRefs.current[id].volume = vol;
+    }
+    
+    // Auto play if turned up while master play is on
     if (isPlaying && audioRefs.current[id]) {
       audioRefs.current[id].play().catch(() => {});
     }
