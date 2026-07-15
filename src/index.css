@@ -1589,17 +1589,17 @@ input {
 
 /* SVG Specific Custom Animations */
 .dog-tail {
-  transform-origin: 28px 28px;
+  transform-origin: 19px 18px;
   animation: tail-wag 0.15s ease-in-out infinite alternate;
 }
 
 .cat-tail {
-  transform-origin: 6px 18px;
+  transform-origin: 2px 10px;
   animation: cat-tail-twitch 1.5s ease-in-out infinite alternate;
 }
 
 .fire-flame {
-  transform-origin: 50px 112px;
+  transform-origin: 12px 22px;
 }
 
 .flame-main {
