@@ -1663,3 +1663,58 @@ input {
   50% { opacity: 0.5; }
   100% { transform: translateY(-60px) scale(1.1); opacity: 0; }
 }
+
+/* SVG Specific Custom Animations */
+.dog-tail {
+  transform-origin: 28px 28px;
+  animation: tail-wag 0.15s ease-in-out infinite alternate;
+}
+
+.cat-tail {
+  transform-origin: 6px 18px;
+  animation: cat-tail-twitch 1.5s ease-in-out infinite alternate;
+}
+
+.fire-flame {
+  transform-origin: 50px 112px;
+}
+
+.flame-main {
+  animation: fire-flicker 0.3s ease-in-out infinite alternate;
+}
+
+.flame-sub {
+  animation: fire-flicker 0.25s ease-in-out infinite alternate-reverse;
+}
+
+.flame-core {
+  animation: fire-flicker 0.2s ease-in-out infinite alternate;
+}
+
+@keyframes cat-tail-twitch {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(-12deg); }
+}
+
+.svg-hanging-ivy {
+  transform-origin: top center;
+  animation: sway 5s ease-in-out infinite alternate;
+}
+
+.svg-customer {
+  animation: breath 2.5s ease-in-out infinite alternate;
+}
+
+.c-typing {
+  transform-origin: bottom center;
+}
+
+/* Add slight typing sway to client */
+.customer.c1 .svg-customer {
+  animation: typing-sway 3s ease-in-out infinite;
+}
+
+@keyframes typing-sway {
+  0%, 100% { transform: rotate(0deg); }
+  50% { transform: rotate(1deg) translateY(-1px); }
+}

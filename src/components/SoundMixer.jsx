@@ -6,28 +6,28 @@ const TRACKS = [
     id: 'lofi',
     name: 'Cozy Lo-Fi',
     icon: Music,
-    url: 'https://www.soundhelix.com/examples/mp3/SoundHelix-Song-8.mp3', // Stable synth-chill instrumental
+    url: '/audio/lofi.mp3',
     defaultVolume: 0.3
   },
   {
     id: 'rain',
     name: 'Gentle Rain',
     icon: CloudRain,
-    url: 'https://www.soundjay.com/nature/sounds/rain-07.mp3',
+    url: '/audio/rain.mp3',
     defaultVolume: 0.0 // starts silent
   },
   {
     id: 'cafe',
     name: 'Café Chatter',
     icon: Users,
-    url: 'https://www.soundjay.com/misc/sounds/food-court-1.mp3',
+    url: '/audio/cafe.mp3',
     defaultVolume: 0.0 // starts silent
   },
   {
     id: 'fire',
     name: 'Crackling Fire',
     icon: Flame,
-    url: 'https://www.soundjay.com/nature/sounds/fire-1.mp3',
+    url: '/audio/fire.mp3',
     defaultVolume: 0.0 // starts silent
   }
 ];
