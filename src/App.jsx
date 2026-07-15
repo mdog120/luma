@@ -270,7 +270,7 @@ export default function App() {
     return (
       <div className="loading-screen">
         <div className="coffee-loader">
-          <Coffee size={48} className="loader-icon" />
+          <img src="/logo.jpg" alt="Luma Logo" className="loader-logo-img" />
           <p>Opening Luma Cafe...</p>
         </div>
       </div>
@@ -287,7 +287,7 @@ export default function App() {
       {/* HEADERBAR */}
       <header className="app-header">
         <div className="logo-section">
-          <Coffee className="logo-icon" size={26} />
+          <img src="/logo.jpg" alt="Luma Logo" className="header-logo-img" />
           <h1>Luma</h1>
         </div>
 

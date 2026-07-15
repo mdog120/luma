@@ -106,8 +106,13 @@ input {
   color: var(--c-coffee-dark);
 }
 
-.logo-icon {
-  color: var(--c-caramel);
+.header-logo-img {
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  object-fit: cover;
+  border: 2px solid var(--c-caramel);
+  box-shadow: var(--shadow-sm);
   animation: float 4s ease-in-out infinite;
 }
 
@@ -232,24 +237,15 @@ input {
   margin-bottom: 30px;
 }
 
-.auth-logo-circle {
-  width: 70px;
-  height: 70px;
-  background: var(--bg-cream);
+.auth-logo-img {
+  width: 180px;
+  height: 180px;
   border-radius: 50%;
-  display: flex;
-  justify-content: center;
-  align-items: center;
+  object-fit: cover;
   margin: 0 auto 16px;
-  color: var(--c-coffee-dark);
-}
-
-.auth-header h1 {
-  font-family: var(--font-header);
-  font-size: 32px;
-  font-weight: 700;
-  color: var(--c-coffee-dark);
-  margin-bottom: 6px;
+  border: 4px solid var(--bg-latte);
+  box-shadow: var(--shadow-md);
+  display: block;
 }
 
 .auth-header p {
@@ -1717,4 +1713,44 @@ input {
 @keyframes typing-sway {
   0%, 100% { transform: rotate(0deg); }
   50% { transform: rotate(1deg) translateY(-1px); }
+}
+
+/* Loading Screen & Loader Brand Spinner */
+.loading-screen {
+  position: fixed;
+  inset: 0;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  background: var(--bg-cream);
+  z-index: 1000;
+}
+
+.coffee-loader {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 16px;
+}
+
+.loader-logo-img {
+  width: 80px;
+  height: 80px;
+  border-radius: 50%;
+  object-fit: cover;
+  border: 4px solid var(--c-caramel);
+  box-shadow: var(--shadow-lg);
+  animation: float 3s ease-in-out infinite, loader-spin 8s linear infinite;
+}
+
+.coffee-loader p {
+  font-family: var(--font-header);
+  font-size: 18px;
+  font-weight: 600;
+  color: var(--c-coffee-dark);
+}
+
+@keyframes loader-spin {
+  from { transform: rotate(0deg); }
+  to { transform: rotate(360deg); }
 }

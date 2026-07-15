@@ -64,10 +64,7 @@ export default function Auth({ onAuthSuccess }) {
     <div className="auth-container">
       <div className="auth-card">
         <div className="auth-header">
-          <div className="auth-logo-circle">
-            <Coffee className="auth-logo-icon" size={32} />
-          </div>
-          <h1>Luma</h1>
+          <img src="/logo.jpg" alt="Luma Logo" className="auth-logo-img" />
           <p>Your cozy focus cafe</p>
         </div>
 
