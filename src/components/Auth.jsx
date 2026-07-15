@@ -43,19 +43,16 @@ export default function Auth({ onAuthSuccess }) {
     }
   };
 
-  const handleGuestMode = async () => {
+  const handleGuestMode = () => {
     setLoading(true);
     setMessage({ text: '', type: '' });
     try {
-      // For mock or real Supabase, we can sign in using a mock guest account
-      const { data, error } = await supabase.auth.signUp({
-        email: `guest_${Math.random().toString(36).substring(2, 9)}@luma-cafe.local`,
-        password: 'guest-password-123'
-      });
-      if (error) throw error;
-      if (data?.session) {
-        onAuthSuccess && onAuthSuccess(data.session);
-      }
+      // Instantly enter Guest Mode without hitting Supabase auth rate limits
+      const session = {
+        access_token: 'guest-token',
+        user: { id: 'guest-user', email: 'guest@luma-cafe.local' }
+      };
+      onAuthSuccess && onAuthSuccess(session);
     } catch (error) {
       setMessage({ text: 'Could not start Guest Mode: ' + error.message, type: 'error' });
     } finally {

@@ -59,6 +59,28 @@ export default function App() {
     try {
       const user = session.user;
 
+      if (user.id === 'guest-user') {
+        const localProfile = localStorage.getItem('luma_guest_profile');
+        if (localProfile) {
+          const parsed = JSON.parse(localProfile);
+          setCoins(parsed.coins ?? 100);
+          setHighScore(parsed.high_score ?? 0);
+          setActiveTheme(parsed.active_theme ?? 'default');
+        } else {
+          setCoins(100);
+          setHighScore(0);
+          setActiveTheme('default');
+        }
+
+        const localItems = localStorage.getItem('luma_guest_items');
+        if (localItems) {
+          setUnlockedItems(JSON.parse(localItems));
+        } else {
+          setUnlockedItems([]);
+        }
+        return;
+      }
+
       // 1. Fetch profile (coins, theme, high score)
       let { data: profile, error: profileErr } = await supabase
         .from('profiles')
@@ -106,24 +128,32 @@ export default function App() {
     setCoins(newCoinCount);
     setHighScore(newHighScore);
 
-    // Save to Supabase
+    // Save to Supabase / Local Storage
     if (session?.user) {
       const user = session.user;
       
-      // Update profile
-      await supabase
-        .from('profiles')
-        .update({ coins: newCoinCount, high_score: newHighScore })
-        .eq('id', user.id);
+      if (user.id === 'guest-user') {
+        localStorage.setItem('luma_guest_profile', JSON.stringify({
+          coins: newCoinCount,
+          high_score: newHighScore,
+          active_theme: activeTheme
+        }));
+      } else {
+        // Update profile
+        await supabase
+          .from('profiles')
+          .update({ coins: newCoinCount, high_score: newHighScore })
+          .eq('id', user.id);
 
-      // Log session
-      await supabase
-        .from('focus_sessions')
-        .insert({
-          user_id: user.id,
-          duration: duration,
-          completed: true
-        });
+        // Log session
+        await supabase
+          .from('focus_sessions')
+          .insert({
+            user_id: user.id,
+            duration: duration,
+            completed: true
+          });
+      }
     }
 
     // Trigger reward modal overlay
@@ -141,20 +171,28 @@ export default function App() {
 
     if (session?.user) {
       const user = session.user;
-      await supabase
-        .from('profiles')
-        .update({ coins: newCoinCount })
-        .eq('id', user.id);
-
-      // Log incomplete session
-      if (minutesFocused > 0) {
+      if (user.id === 'guest-user') {
+        localStorage.setItem('luma_guest_profile', JSON.stringify({
+          coins: newCoinCount,
+          high_score: highScore,
+          active_theme: activeTheme
+        }));
+      } else {
         await supabase
-          .from('focus_sessions')
-          .insert({
-            user_id: user.id,
-            duration: minutesFocused,
-            completed: false
-          });
+          .from('profiles')
+          .update({ coins: newCoinCount })
+          .eq('id', user.id);
+
+        // Log incomplete session
+        if (minutesFocused > 0) {
+          await supabase
+            .from('focus_sessions')
+            .insert({
+              user_id: user.id,
+              duration: minutesFocused,
+              completed: false
+            });
+        }
       }
     }
 
@@ -176,34 +214,56 @@ export default function App() {
     if (session?.user) {
       const user = session.user;
 
-      // 1. Deduct coins
-      await supabase
-        .from('profiles')
-        .update({ coins: newCoins })
-        .eq('id', user.id);
+      if (user.id === 'guest-user') {
+        localStorage.setItem('luma_guest_profile', JSON.stringify({
+          coins: newCoins,
+          high_score: highScore,
+          active_theme: activeTheme
+        }));
+        localStorage.setItem('luma_guest_items', JSON.stringify(newUnlocked));
+      } else {
+        // 1. Deduct coins
+        await supabase
+          .from('profiles')
+          .update({ coins: newCoins })
+          .eq('id', user.id);
 
-      // 2. Add item to unlocked
-      await supabase
-        .from('unlocked_items')
-        .insert({
-          user_id: user.id,
-          item_id: item.id
-        });
+        // 2. Add item to unlocked
+        await supabase
+          .from('unlocked_items')
+          .insert({
+            user_id: user.id,
+            item_id: item.id
+          });
+      }
     }
   };
 
   const handleThemeChange = async (themeName) => {
     setActiveTheme(themeName);
     if (session?.user) {
-      await supabase
-        .from('profiles')
-        .update({ active_theme: themeName })
-        .eq('id', session.user.id);
+      const user = session.user;
+      if (user.id === 'guest-user') {
+        localStorage.setItem('luma_guest_profile', JSON.stringify({
+          coins: coins,
+          high_score: highScore,
+          active_theme: themeName
+        }));
+      } else {
+        await supabase
+          .from('profiles')
+          .update({ active_theme: themeName })
+          .eq('id', user.id);
+      }
     }
   };
 
   const handleLogout = async () => {
-    await supabase.auth.signOut();
+    if (session?.user?.id === 'guest-user') {
+      setSession(null);
+    } else {
+      await supabase.auth.signOut();
+    }
   };
 
   if (loading) {
